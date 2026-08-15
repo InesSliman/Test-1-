@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Find your perfect candidate</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #ffffff;
+      --surface: #f8f8f7;
+      --border: #e5e5e3;
+      --border-strong: #d0d0cd;
+      --text-primary: #0d0d0d;
+      --text-secondary: #6b6b68;
+      --text-muted: #a0a09d;
+      --accent: #1a56db;
+      --accent-bg: #eef3fd;
+      --radius: 8px;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg);
+      color: var(--text-primary);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem 1rem;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 560px;
+    }
+
+    .header {
+      margin-bottom: 2.5rem;
+    }
+
+    .tag {
+      display: inline-block;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--accent);
+      background: var(--accent-bg);
+      padding: 4px 10px;
+      border-radius: 20px;
+      margin-bottom: 1rem;
+    }
+
+    h1 {
+      font-size: 26px;
+      font-weight: 600;
+      line-height: 1.3;
+      color: var(--text-primary);
+      margin-bottom: 0.5rem;
+    }
+
+    .subtitle {
+      font-size: 15px;
+      color: var(--text-secondary);
+      line-height: 1.6;
+    }
+
+    .progress-bar-wrap {
+      background: var(--border);
+      border-radius: 20px;
+      height: 3px;
+      margin-bottom: 2rem;
+      overflow: hidden;
+    }
+
+    .progress-bar {
+      height: 100%;
+      background: var(--accent);
+      border-radius: 20px;
+      transition: width 0.3s ease;
+    }
+
+    .question-label {
+      font-size: 16px;
+      font-weight: 500;
+      color: var(--text-primary);
+      margin-bottom: 1.25rem;
+      line-height: 1.5;
+    }
+
+    .options {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-bottom: 2rem;
+    }
+
+    .opt {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 13px 16px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      cursor: pointer;
+      transition: border-color 0.15s, background 0.15s;
+      user-select: none;
+    }
+
+    .opt:hover {
+      border-color: var(--border-strong);
+      background: var(--surface);
+    }
+
+    .opt.selected {
+      border-color: var(--accent);
+      background: var(--accent-bg);
+    }
+
+    .opt-radio {
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      border: 1.5px solid var(--border-strong);
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: border-color 0.15s;
+    }
+
+    .opt.selected .opt-radio {
+      border-color: var(--accent);
+      background: var(--accent);
+    }
+
+    .opt.selected .opt-radio::after {
+      content: '';
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: white;
+    }
+
+    .opt-text {
+      font-size: 15px;
+      color: var(--text-primary);
+      line-height: 1.4;
+    }
+
+    .nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .progress-label {
+      font-size: 13px;
+      color: var(--text-muted);
+    }
+
+    .btn {
+      padding: 10px 22px;
+      border: 1px solid var(--border-strong);
+      border-radius: var(--radius);
+      background: transparent;
+      color: var(--text-primary);
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      font-family: 'Inter', sans-serif;
+      transition: background 0.15s;
+    }
+
+    .btn:hover { background: var(--surface); }
+
+    .btn-primary {
+      background: var(--text-primary);
+      color: white;
+      border-color: var(--text-primary);
+    }
+
+    .btn-primary:hover { opacity: 0.85; background: var(--text-primary); }
+
+    .error-msg {
+      font-size: 13px;
+      color: #c0392b;
+      margin-top: 10px;
+      display: none;
+    }
+
+    .result-wrap { display: none; }
+
+    .result-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 2rem;
+      text-align: center;
+    }
+
+    .result-emoji {
+      font-size: 40px;
+      margin-bottom: 1rem;
+    }
+
+    .result-title {
+      font-size: 20px;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: 0.5rem;
+      line-height: 1.3;
+    }
+
+    .result-sub {
+      font-size: 14px;
+      color: var(--text-secondary);
+      margin-bottom: 1.5rem;
+      line-height: 1.5;
+    }
+
+    .proof-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin: 1.5rem 0;
+      text-align: left;
+    }
+
+    @media (max-width: 480px) {
+      .proof-grid { grid-template-columns: 1fr; }
+    }
+
+    .proof-item {
+      background: white;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 12px;
+    }
+
+    .proof-tag {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--accent);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      margin-bottom: 5px;
+    }
+
+    .proof-text {
+      font-size: 13px;
+      color: var(--text-primary);
+      line-height: 1.5;
+    }
+
+    .cta-row {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+      margin-top: 1.5rem;
+      flex-wrap: wrap;
+    }
+
+    .cta-row a {
+      text-decoration: none;
+    }
+
+    .divider {
+      height: 1px;
+      background: var(--border);
+      margin: 2rem 0;
+    }
+
+    .karate-note {
+      font-size: 13px;
+      color: var(--text-muted);
+      text-align: center;
+      margin-top: 1rem;
+      font-style: italic;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <div class="tag">Recruiter quiz</div>
+      <h1>Find your perfect candidate</h1>
+      <p class="subtitle">4 questions about the profile you're looking for. No tricks — well, maybe one.</p>
+    </div>
+
+    <div id="quiz-screen">
+      <div class="progress-bar-wrap">
+        <div class="progress-bar" id="progress-bar" style="width: 25%"></div>
+      </div>
+      <div id="q-label" class="question-label"></div>
+      <div id="q-options" class="options"></div>
+      <div class="nav">
+        <span id="q-progress" class="progress-label"></span>
+        <button class="btn btn-primary" id="next-btn" onclick="next()">Next →</button>
+      </div>
+      <p id="q-error" class="error-msg">Please select an option first.</p>
+    </div>
+
+    <div class="result-wrap" id="result-screen">
+      <div class="result-card">
+        <div class="result-emoji">🎯</div>
+        <p class="result-title">Good news — you just described Inès Sliman.</p>
+        <p class="result-sub">Whatever profile you had in mind, the proof is right here.</p>
+        <div class="proof-grid" id="proof-grid"></div>
+        <div class="divider"></div>
+        <div class="cta-row">
+          <a href="mailto:ines.slimankaddour@sciencespo.fr">
+            <button class="btn btn-primary">Contact Inès →</button>
+          </a>
+          <a href="#" onclick="restart(); return false;">
+            <button class="btn">Try again</button>
+          </a>
+        </div>
+        <p class="karate-note">Also: karate black belt. Knows when to push, knows when to adapt.</p>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const questions = [
+      {
+        q: "What kind of environment does your ideal candidate thrive in?",
+        opts: ["Fast-paced startup or scale-up", "Structured corporate environment", "International and cross-cultural settings", "All of the above — ideally someone who's done all three"]
+      },
+      {
+        q: "What skills matter most to you?",
+        opts: ["Data analysis and performance tracking", "Product launches and go-to-market", "CRM, campaigns and digital marketing", "All of the above"]
+      },
+      {
+        q: "What mindset are you looking for?",
+        opts: ["Entrepreneurial — someone who builds from zero", "Analytical — someone who turns data into decisions", "Creative — someone who tells compelling stories", "All of the above, honestly"]
+      },
+      {
+        q: "What would make you really excited about a candidate?",
+        opts: ["Multiple languages and international experience", "Has launched something independently", "Understands both luxury and mass-market", "All of the above — is that too much to ask?"]
+      }
+    ];
+
+    const proofs = [
+      { tag: "Fast-paced startup", text: "Amsak Paris — launched a brand from 0 to 90%+ sell-out in 3 months." },
+      { tag: "Corporate", text: "Henkel — 6 product launches across 3 distribution channels, 4 agencies." },
+      { tag: "International", text: "Sciences Po Menton + Istanbul + CCI Franco-Turque + 4 languages." },
+      { tag: "Data analysis", text: "GfK & Nielsen panels, Power BI dashboards, sell-in/sell-out tracking." },
+      { tag: "Go-to-market", text: "+12% volume growth — omnichannel campaign targeting 8,000+ households." },
+      { tag: "CRM & digital", text: "36% open rate vs 21% industry avg — 16 segmented email campaigns on Brevo." },
+      { tag: "Entrepreneurial", text: "Founded Amsak Paris end-to-end: concept, sourcing, pricing, P&L, community." },
+      { tag: "Analytical", text: "Competitive benchmarking and margin modelling across French and US markets." },
+      { tag: "Multilingual", text: "French (native), English C1 Cambridge, Arabic B1, Italian conversational." },
+      { tag: "Independent builder", text: "Amsak, CCI Turkey, karate black belt — always building something real." },
+      { tag: "Luxury + mass market", text: "Messika (haute joaillerie) and Henkel Loctite/Pritt — two worlds, same rigour." },
+      { tag: "Creative", text: "Guitarist, drummer, content creator — storytelling is a core skill, not a nice-to-have." }
+    ];
+
+    let current = 0;
+    let selected = null;
+
+    function render() {
+      const q = questions[current];
+      document.getElementById('q-label').textContent = (current + 1) + '. ' + q.q;
+      document.getElementById('q-progress').textContent = 'Question ' + (current + 1) + ' of ' + questions.length;
+      document.getElementById('progress-bar').style.width = ((current + 1) / questions.length * 100) + '%';
+      document.getElementById('next-btn').textContent = current === questions.length - 1 ? 'See result →' : 'Next →';
+      document.getElementById('q-error').style.display = 'none';
+      selected = null;
+
+      const container = document.getElementById('q-options');
+      container.innerHTML = '';
+      q.opts.forEach(function(opt, i) {
+        const div = document.createElement('div');
+        div.className = 'opt';
+        div.innerHTML = '<div class="opt-radio"></div><span class="opt-text">' + opt + '</span>';
+        div.onclick = function() {
+          document.querySelectorAll('.opt').forEach(function(o) { o.classList.remove('selected'); });
+          div.classList.add('selected');
+          selected = i;
+          document.getElementById('q-error').style.display = 'none';
+        };
+        container.appendChild(div);
+      });
+    }
+
+    function next() {
+      if (selected === null) {
+        document.getElementById('q-error').style.display = 'block';
+        return;
+      }
+      if (current < questions.length - 1) {
+        current++;
+        render();
+      } else {
+        showResult();
+      }
+    }
+
+    function showResult() {
+      document.getElementById('quiz-screen').style.display = 'none';
+      const shuffled = proofs.slice().sort(function() { return 0.5 - Math.random(); }).slice(0, 4);
+      const grid = document.getElementById('proof-grid');
+      grid.innerHTML = shuffled.map(function(p) {
+        return '<div class="proof-item"><div class="proof-tag">' + p.tag + '</div><div class="proof-text">' + p.text + '</div></div>';
+      }).join('');
+      document.getElementById('result-screen').style.display = 'block';
+    }
+
+    function restart() {
+      current = 0;
+      selected = null;
+      document.getElementById('result-screen').style.display = 'none';
+      document.getElementById('quiz-screen').style.display = 'block';
+      render();
+    }
+
+    render();
+  </script>
+</body>
+</html>

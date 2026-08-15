@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Quiz</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root{
+      --bg:#ffffff;
+      --surface:#f8f8f7;
+      --border:#e5e5e3;
+      --border-strong:#d0d0cd;
+      --text-primary:#0d0d0d;
+      --text-secondary:#6b6b68;
+      --text-muted:#a0a09d;
+      --accent:#1a56db;
+      --accent-bg:#eef3fd;
+      --radius:8px;
+    }
+
+    body{
+      font-family:'Inter',sans-serif;
+      background:var(--bg);
+      color:var(--text-primary);
+      min-height:100vh;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:2rem 1rem;
+    }
+
+    .container{ width:100%; max-width:560px; }
+
+    .header{ margin-bottom:2.5rem; }
+
+    .tag{
+      display:inline-block;
+      font-size:11px;
+      font-weight:600;
+      letter-spacing:0.08em;
+      text-transform:uppercase;
+      color:var(--accent);
+      background:var(--accent-bg);
+      padding:4px 10px;
+      border-radius:20px;
+      margin-bottom:1rem;
+    }
+
+    h1{
+      font-size:26px;
+      font-weight:600;
+      line-height:1.3;
+      color:var(--text-primary);
+      margin-bottom:0.5rem;
+    }
+
+    .subtitle{
+      font-size:15px;
+      color:var(--text-secondary);
+      line-height:1.6;
+    }
+
+    .progress-bar-wrap{
+      background:var(--border);
+      border-radius:20px;
+      height:3px;
+      margin-bottom:2rem;
+      overflow:hidden;
+    }
+    .progress-bar{
+      height:100%;
+      background:var(--accent);
+      border-radius:20px;
+      transition:width 0.3s ease;
+    }
+
+    .question-label{
+      font-size:16px;
+      font-weight:500;
+      color:var(--text-primary);
+      margin-bottom:1.25rem;
+      line-height:1.5;
+    }
+
+    .options{
+      display:flex;
+      flex-direction:column;
+      gap:10px;
+      margin-bottom:2rem;
+    }
+
+    .opt{
+      display:flex;
+      align-items:center;
+      gap:12px;
+      padding:13px 16px;
+      border:1px solid var(--border);
+      border-radius:var(--radius);
+      cursor:pointer;
+      transition:border-color 0.15s, background 0.15s;
+      user-select:none;
+    }
+    .opt:hover{ border-color:var(--border-strong); background:var(--surface); }
+    .opt.selected{ border-color:var(--accent); background:var(--accent-bg); }
+
+    .opt-radio{
+      width:18px;
+      height:18px;
+      border-radius:50%;
+      border:1.5px solid var(--border-strong);
+      flex-shrink:0;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      transition:border-color 0.15s;
+    }
+    .opt.selected .opt-radio{ border-color:var(--accent); background:var(--accent); }
+    .opt.selected .opt-radio::after{
+      content:'';
+      width:7px;
+      height:7px;
+      border-radius:50%;
+      background:white;
+    }
+
+    .opt-text{ font-size:15px; color:var(--text-primary); line-height:1.4; }
+
+    .nav{ display:flex; align-items:center; justify-content:space-between; }
+
+    .progress-label{ font-size:13px; color:var(--text-muted); }
+
+    .btn{
+      padding:10px 22px;
+      border:1px solid var(--border-strong);
+      border-radius:var(--radius);
+      background:transparent;
+      color:var(--text-primary);
+      font-size:14px;
+      font-weight:500;
+      cursor:pointer;
+      font-family:'Inter', sans-serif;
+      transition:background 0.15s;
+    }
+    .btn:hover{ background:var(--surface); }
+
+    .btn-primary{
+      background:var(--text-primary);
+      color:white;
+      border-color:var(--text-primary);
+    }
+    .btn-primary:hover{ opacity:0.85; background:var(--text-primary); }
+
+    .error-msg{
+      font-size:13px;
+      color:#c0392b;
+      margin-top:10px;
+      display:none;
+    }
+
+    .result-wrap{ display:none; }
+    .result-card{
+      background:var(--surface);
+      border:1px solid var(--border);
+      border-radius:12px;
+      padding:2rem;
+      text-align:center;
+    }
+    .result-emoji{ font-size:40px; margin-bottom:1rem; }
+    .result-title{
+      font-size:20px;
+      font-weight:600;
+      color:var(--text-primary);
+      margin-bottom:0.5rem;
+      line-height:1.3;
+    }
+    .result-sub{
+      font-size:14px;
+      color:var(--text-secondary);
+      margin-bottom:1.5rem;
+      line-height:1.5;
+    }
+
+    .proof-grid{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:10px;
+      margin:1.5rem 0;
+      text-align:left;
+    }
+    @media (max-width:480px){ .proof-grid{ grid-template-columns:1fr; } }
+
+    .proof-item{
+      background:white;
+      border:1px solid var(--border);
+      border-radius:var(--radius);
+      padding:12px;
+    }
+    .proof-tag{
+      font-size:11px;
+      font-weight:600;
+      color:var(--accent);
+      text-transform:uppercase;
+      letter-spacing:0.06em;
+      margin-bottom:5px;
+    }
+    .proof-text{ font-size:13px; color:var(--text-primary); line-height:1.5; }
+
+    .cta-row{
+      display:flex;
+      gap:10px;
+      justify-content:center;
+      margin-top:1.5rem;
+      flex-wrap:wrap;
+    }
+    .cta-row a{ text-decoration:none; }
+
+    .divider{ height:1px; background:var(--border); margin:2rem 0; }
+
+    .note{
+      font-size:13px;
+      color:var(--text-muted);
+      text-align:center;
+      margin-top:1rem;
+      font-style:italic;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <div class="header">
+      <div class="tag" id="quiz-tag">Recruiter quiz</div>
+      <h1 id="quiz-title">Find your perfect candidate</h1>
+      <p class="subtitle" id="quiz-subtitle">4 questions about the profile you're looking for.</p>
+    </div>
+
+    <div id="quiz-screen">
+      <div class="progress-bar-wrap">
+        <div class="progress-bar" id="progress-bar" style="width: 0%"></div>
+      </div>
+
+      <div id="q-label" class="question-label"></div>
+      <div id="q-options" class="options"></div>
+
+      <div class="nav">
+        <span id="q-progress" class="progress-label"></span>
+        <button class="btn btn-primary" id="next-btn">Next →</button>
+      </div>
+
+      <p id="q-error" class="error-msg">Please select an option first.</p>
+    </div>
+
+    <div class="result-wrap" id="result-screen">
+      <div class="result-card">
+        <div class="result-emoji" id="result-emoji">🎯</div>
+        <p class="result-title" id="result-title"></p>
+        <p class="result-sub" id="result-sub"></p>
+
+        <div class="proof-grid" id="proof-grid"></div>
+
+        <div class="divider"></div>
+
+        <div class="cta-row">
+          <a id="cta-link" href="#" target="_blank" rel="noreferrer">
+            <button class="btn btn-primary" id="cta-button">Contact →</button>
+          </a>
+
+          <a href="#" id="restart-link">
+            <button class="btn">Try again</button>
+          </a>
+        </div>
+
+        <p class="note" id="result-note"></p>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    /***********************
+     * EDIT THIS SECTION
+     ***********************/
+
+    // 1) Questions (each option gives points to a "resultId")
+    const questions = [
+      {
+        q: "What kind of environment does your ideal candidate thrive in?",
+        opts: [
+          { text: "Fast-paced startup or scale-up", scores: { builder: 2, analyst: 1 } },
+          { text: "Structured corporate environment", scores: { operator: 2, analyst: 1 } },
+          { text: "International and cross-cultural settings", scores: { global: 2 } },
+          { text: "All of the above", scores: { builder: 1, operator: 1, analyst: 1, global: 1 } }
+        ]
+      },
+      {
+        q: "What skills matter most to you?",
+        opts: [
+          { text: "Data analysis and performance tracking", scores: { analyst: 2 } },
+          { text: "Product launches and go-to-market", scores: { operator: 2 } },
+          { text: "CRM, campaigns and digital marketing", scores: { builder: 2 } },
+          { text: "All of the above", scores: { builder: 1, operator: 1, analyst: 1 } }
+        ]
+      },
+      {
+        q: "What mindset are you looking for?",
+        opts: [
+          { text: "Entrepreneurial — someone who builds from zero", scores: { builder: 2 } },
+          { text: "Analytical — someone who turns data into decisions", scores: { analyst: 2 } },
+          { text: "Structured — someone who executes consistently", scores: { operator: 2 } },
+          { text: "All of the above", scores: { builder: 1, operator: 1, analyst: 1 } }
+        ]
+      },
+      {
+        q: "What would make you really excited about a candidate?",
+        opts: [
+          { text: "Multiple languages and international experience", scores: { global: 2 } },
+          { text: "Has launched something independently", scores: { builder: 2 } },
+          { text: "Understands both premium and mass-market", scores: { operator: 1, analyst: 1 } },
+          { text: "All of the above", scores: { builder: 1, operator: 1, analyst: 1, global: 1 } }
+        ]
+      }
+    ];
+
+    // 2) Results (what you show at the end)
+    const results = {
+      builder: {
+        emoji: "🚀",
+        title: "You’re looking for a Builder",
+        sub: "Someone who launches, iterates, and makes things real.",
+        note: "Tip: edit these results to match your own profiles.",
+        ctaText: "Contact →",
+        ctaHref: "mailto:ines.slimankaddour@sciencespo.fr",
+        proofs: [
+          { tag: "Execution", text: "Ships quickly and learns fast." },
+          { tag: "Ownership", text: "Can run a project end-to-end." },
+          { tag: "Creativity", text: "Finds solutions under constraints." },
+          { tag: "Momentum", text: "Turns ideas into outcomes." }
+        ]
+      },
+      operator: {
+        emoji: "🧭",
+        title: "You’re looking for an Operator",
+        sub: "Someone who can coordinate stakeholders and deliver reliably.",
+        note: "",
+        ctaText: "Contact →",
+        ctaHref: "mailto:ines.slimankaddour@sciencespo.fr",
+        proofs: [
+          { tag: "Process", text: "Creates structure without slowing down." },
+          { tag: "Stakeholders", text: "Aligns teams and agencies." },
+          { tag: "Delivery", text: "Hits deadlines and quality bars." },
+          { tag: "Clarity", text: "Communicates simply and effectively." }
+        ]
+      },
+      analyst: {
+        emoji: "📊",
+        title: "You’re looking for an Analyst",
+        sub: "Someone who turns messy data into clear decisions.",
+        note: "",
+        ctaText: "Contact →",
+        ctaHref: "mailto:ines.slimankaddour@sciencespo.fr",
+        proofs: [
+          { tag: "Dashboards", text: "Builds metrics that drive action." },
+          { tag: "Insights", text: "Finds the signal in the noise." },
+          { tag: "Testing", text: "Improves performance iteratively." },
+          { tag: "Reporting", text: "Makes results understandable." }
+        ]
+      },
+      global: {
+        emoji: "🌍",
+        title: "You’re looking for a Global Profile",
+        sub: "Someone who is strong across cultures, languages, and contexts.",
+        note: "",
+        ctaText: "Contact →",
+        ctaHref: "mailto:ines.slimankaddour@sciencespo.fr",
+        proofs: [
+          { tag: "Culture", text: "Navigates cross-cultural environments." },
+          { tag: "Languages", text: "Communicates across markets." },
+          { tag: "Adaptability", text: "Performs well in new contexts." },
+          { tag: "Perspective", text: "Brings fresh angles to strategy." }
+        ]
+      }
+    };
+
+    /***********************
+     * QUIZ ENGINE (no need to edit)
+     ***********************/
+    let current = 0;
+    let selected = null;
+    const totals = {};
+
+    function resetTotals(){
+      Object.keys(results).forEach(k => totals[k] = 0);
+    }
+
+    function addScores(scoreObj){
+      Object.entries(scoreObj || {}).forEach(([k, v]) => {
+        totals[k] = (totals[k] || 0) + Number(v || 0);
+      });
+    }
+
+    function bestResultId(){
+      const entries = Object.entries(totals);
+      entries.sort((a,b) => b[1] - a[1]);
+      // tie-break: first highest
+      return entries.length ? entries[0][0] : Object.keys(results)[0];
+    }
+
+    function render(){
+      const q = questions[current];
+      document.getElementById('q-label').textContent = (current + 1) + '. ' + q.q;
+      document.getElementById('q-progress').textContent = 'Question ' + (current + 1) + ' of ' + questions.length;
+      document.getElementById('progress-bar').style.width = ((current + 1) / questions.length * 100) + '%';
+      document.getElementById('next-btn').textContent = current === questions.length - 1 ? 'See result →' : 'Next →';
+      document.getElementById('q-error').style.display = 'none';
+
+      selected = null;
+
+      const container = document.getElementById('q-options');
+      container.innerHTML = '';
+      q.opts.forEach(function(opt, i){
+        const div = document.createElement('div');
+        div.className = 'opt';
+        div.innerHTML = '<div class="opt-radio"></div><span class="opt-text">' + opt.text + '</span>';
+        div.onclick = function(){
+          document.querySelectorAll('.opt').forEach(o => o.classList.remove('selected'));
+          div.classList.add('selected');
+          selected = i;
+          document.getElementById('q-error').style.display = 'none';
+        };
+        container.appendChild(div);
+      });
+    }
+
+    function next(){
+      if(selected === null){
+        document.getElementById('q-error').style.display = 'block';
+        return;
+      }
+
+      const picked = questions[current].opts[selected];
+      addScores(picked.scores);
+
+      if(current < questions.length - 1){
+        current++;
+        render();
+      } else {
+        showResult();
+      }
+    }
+
+    function showResult(){
+      const id = bestResultId();
+      const r = results[id];
+
+      document.getElementById('quiz-screen').style.display = 'none';
+
+      document.getElementById('result-emoji').textContent = r.emoji;
+      document.getElementById('result-title').textContent = r.title;
+      document.getElementById('result-sub').textContent = r.sub;
+      document.getElementById('result-note').textContent = r.note || "";
+
+      const grid = document.getElementById('proof-grid');
+      const cards = (r.proofs || []).slice(0,4);
+      grid.innerHTML = cards.map(p =>
+        '<div class="proof-item"><div class="proof-tag">' + p.tag + '</div><div class="proof-text">' + p.text + '</div></div>'
+      ).join('');
+
+      const ctaLink = document.getElementById('cta-link');
+      ctaLink.href = r.ctaHref || "#";
+      document.getElementById('cta-button').textContent = r.ctaText || "Contact →";
+
+      document.getElementById('result-screen').style.display = 'block';
+    }
+
+    function restart(){
+      current = 0;
+      selected = null;
+      resetTotals();
+      document.getElementById('result-screen').style.display = 'none';
+      document.getElementById('quiz-screen').style.display = 'block';
+      render();
+    }
+
+    document.getElementById('next-btn').addEventListener('click', next);
+    document.getElementById('restart-link').addEventListener('click', function(e){
+      e.preventDefault();
+      restart();
+    });
+
+    resetTotals();
+    render();
+  </script>
+</body>
+</html>
+
